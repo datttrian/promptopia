@@ -6,25 +6,25 @@ import { useState, useEffect } from 'react';
 import { signIn, signOut, useSession, getProviders } from 'next-auth/react';
 
 const Nav = () => {
-  const isUserLoggedIn = true;
+  const { data: session } = useSession();
 
   const [providers, setProviders] = useState(null);
   const [toggleDropdown, setToggleDropdown] = useState(false);
 
   useEffect(() => {
-    const setProviders = async () => {
+    const setUpProviders = async () => {
       const response = await getProviders();
 
       setProviders(response);
-    }
+    };
 
-    setProviders();
-  }, [])
+    setUpProviders();
+  }, []);
 
   return (
     <nav className="flex-between w-full mb-16 pt-3">
       <Link href="/" className="flex gap-2 flex-center">
-        <Image 
+        <Image
           src="/assets/images/logo.svg"
           alt="Promptopia Logo"
           width={30}
@@ -36,19 +36,19 @@ const Nav = () => {
 
       {/* Desktop Navigation */}
       <div className="sm:flex hidden">
-        {isUserLoggedIn ? (
+        {session?.user ? (
           <div className="flex gap-3 md:gap-5">
-            <Link
-              href="/create-prompt"
-              className="black_btn">
-                Create Post
+            <Link href="/create-prompt" className="black_btn">
+              Create Post
             </Link>
 
-            <button type="button" onClick={signOut} className="outline_btn">Sign Out</button>
+            <button type="button" onClick={signOut} className="outline_btn">
+              Sign Out
+            </button>
 
-            <Link href="/profile"> 
+            <Link href="/profile">
               <Image
-                src="/assets/images/logo.svg"
+                src={session?.user.image}
                 width={37}
                 height={37}
                 className="rounded-full"
@@ -56,7 +56,7 @@ const Nav = () => {
               />
             </Link>
           </div>
-        ): (
+        ) : (
           <>
             {providers &&
               Object.values(providers).map((provider) => (
@@ -68,17 +68,17 @@ const Nav = () => {
                 >
                   Sign In
                 </button>
-            ))}
+              ))}
           </>
         )}
       </div>
 
       {/* Mobile Navigation */}
       <div className="sm:hidden flex relative">
-        {isUserLoggedIn ? (
+        {session?.user ? (
           <div className="flex">
             <Image
-              src="/assets/images/logo.svg"
+              src={session?.user.image}
               width={37}
               height={37}
               className="rounded-full"
@@ -114,11 +114,10 @@ const Nav = () => {
                 >
                   Sign Out
                 </button>
-
               </div>
             )}
           </div>
-        ): (
+        ) : (
           <>
             {providers &&
               Object.values(providers).map((provider) => (
@@ -130,12 +129,12 @@ const Nav = () => {
                 >
                   Sign In
                 </button>
-            ))}
+              ))}
           </>
         )}
       </div>
     </nav>
-  )
-}
+  );
+};
 
-export default Nav
+export default Nav;
